@@ -1,6 +1,7 @@
 const express = require('express');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
+var _ = require('lodash');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -29,6 +30,19 @@ app.post("/compose", function(req, res) {
   var post = req.body;
   posts.push(post);
   res.redirect('/compose');
+});
+
+
+app.get("/posts/:postName", function(req, res) {
+  const reqTitle = _.lowerCase(req.params.postName);
+  posts.forEach(function(post){
+    const storedTitle = _.lowerCase(post.title);
+    if(reqTitle  === storedTitle){
+      res.render('postpage', {post:post});
+    } else{
+      console.log('not match');
+    }
+  })
 });
 
 
