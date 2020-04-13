@@ -1,5 +1,6 @@
 const express = require('express');
 const ejs = require('ejs');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 var _ = require('lodash');
 
@@ -8,10 +9,22 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended:true}));
 const port = 3000;
-var posts = [{title:"Title",content: "Content"}];
+
+mongoose.connect("mongodb://localhost:27017/blogBD", {useNewUrlParser: true});
+const postSchema = {
+  title: String,
+  content: String
+};
+const Post = mongoose.model("Post", postSchema);
+let posts = [];
 
 app.get("/", function(req, res) {
-  res.render('index', {posts:posts});
+  Post.find({}, function(err, posts){
+
+    res.render("index", {
+      posts: posts
+      });
+  });
 });
 
 app.get("/about", function(req, res) {
@@ -19,6 +32,7 @@ app.get("/about", function(req, res) {
 });
 
 app.get("/contact", function(req, res) {
+
   res.render('contact', {contact:"Contact"});
 });
 
@@ -27,14 +41,21 @@ app.get("/compose", function(req, res) {
 });
 
 app.post("/compose", function(req, res) {
-  var post = req.body;
-  posts.push(post);
-  res.redirect('/compose');
+  const post = new Post ({
+    title: req.body.title,
+    content: req.body.content
+  });
+  console.log(post);
+
+  post.save();
+
+  res.redirect('/');
 });
 
 
 app.get("/posts/:postName", function(req, res) {
   const reqTitle = _.lowerCase(req.params.postName);
+    Post.find({}, function(err, posts){
   posts.forEach(function(post){
     const storedTitle = _.lowerCase(post.title);
     if(reqTitle  === storedTitle){
@@ -43,6 +64,7 @@ app.get("/posts/:postName", function(req, res) {
       console.log('not match');
     }
   })
+});
 });
 
 
