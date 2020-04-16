@@ -7,33 +7,41 @@ var _ = require('lodash');
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 const port = 3000;
 
-mongoose.connect("mongodb://localhost:27017/blogBD", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/blogBD", {
+  useNewUrlParser: true
+});
 const postSchema = {
   title: String,
-  content: String
+  content: String,
 };
 const Post = mongoose.model("Post", postSchema);
 let posts = [];
 
 app.get("/", function(req, res) {
-  Post.find({}, function(err, posts){
-
+  Post.find({}, function(err, posts) {
+    console.log(posts);
     res.render("index", {
       posts: posts
-      });
+    });
   });
 });
 
 app.get("/about", function(req, res) {
-  res.render('about', {about:"About"});
+  res.render('about', {
+    about: "About"
+  });
 });
 
 app.get("/contact", function(req, res) {
 
-  res.render('contact', {contact:"Contact"});
+  res.render('contact', {
+    contact: "Contact"
+  });
 });
 
 app.get("/compose", function(req, res) {
@@ -41,9 +49,9 @@ app.get("/compose", function(req, res) {
 });
 
 app.post("/compose", function(req, res) {
-  const post = new Post ({
+  const post = new Post({
     title: req.body.title,
-    content: req.body.content
+    content: String(req.body.content)
   });
   console.log(post);
 
@@ -55,16 +63,18 @@ app.post("/compose", function(req, res) {
 
 app.get("/posts/:postName", function(req, res) {
   const reqTitle = _.lowerCase(req.params.postName);
-    Post.find({}, function(err, posts){
-  posts.forEach(function(post){
-    const storedTitle = _.lowerCase(post.title);
-    if(reqTitle  === storedTitle){
-      res.render('postpage', {post:post});
-    } else{
-      console.log('not match');
-    }
-  })
-});
+  Post.find({}, function(err, posts) {
+    posts.forEach(function(post) {
+      const storedTitle = _.lowerCase(post.title);
+      if (reqTitle === storedTitle) {
+        res.render('postpage', {
+          post: post
+        });
+      } else {
+        console.log('not match');
+      }
+    })
+  });
 });
 
 
