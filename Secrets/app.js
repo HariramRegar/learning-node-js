@@ -1,4 +1,4 @@
-//jshint esversion:6
+require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
@@ -23,8 +23,11 @@ const userSchema = new mongoose.Schema({
   password: String,
 });
 
-const secret = 'This is our little secret.';
-userSchema.plugin(encrypt, { secret:secret, encryptedFields: ['password'] });
+const secret = process.env.SECRET;
+userSchema.plugin(encrypt, {
+  secret: secret,
+  encryptedFields: ['password']
+});
 const User = new mongoose.model("User", userSchema);
 
 app.get('/', function(req, res) {
@@ -35,19 +38,19 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
-app.post('/login', function(req, res) {
-  const email = req.body.username;
-  const password = req.body.password;
-  User.findOne({
-    email: email
-  }, function(err, foundUser) {
+app.post("/login", function(req, res) {
+
+  const  username= req.body.username;
+  const  password= req.body.password;
+
+  User.findOne({email: username}, function(err, foundUser) {
     if (err) {
       console.log(err);
-    } else {
-      if (foundUser.password == password) {
-        res.render('secrets');
-      } else {
-        console.log("password not match");
+    } else{
+      if(foundUser){
+        if(foundUser.password === password){
+          res.render('secrets');
+        }
       }
     }
   });
@@ -65,11 +68,16 @@ app.post('/register', function(req, res) {
   user.save(function(err) {
     if (err) {
       console.log(err);
-      res.render('register');
     } else {
-      res.render('secrets', {user:foundUser})
+      res.render('secrets');
     }
   });
+});
+
+
+app.get('/logout', function(req, res){
+  req.logout;
+  res.redirect('/');
 });
 
 app.listen(3000, function(req, res) {
