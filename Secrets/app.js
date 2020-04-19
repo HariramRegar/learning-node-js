@@ -163,19 +163,6 @@ app.post('/register', function(req, res) {
       });
     }
   });
-  // bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-  //   const user = new User({
-  //     email: req.body.username,
-  //     password: hash,
-  //   });
-  //   user.save(function(err) {
-  //     if (err) {
-  //       console.log(err);
-  //     } else {
-  //       res.render('secrets');
-  //     }
-  //   });
-  // });
 });
 
 
